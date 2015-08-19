@@ -1,6 +1,5 @@
 package finalcode.HttpAsyncClient;
 
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 
 import java.io.IOException;

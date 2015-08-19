@@ -48,8 +48,7 @@ public class HttpClientFactory {
     private int connectTimeout = (5 * 1000);
     private boolean gzip = false;
 
-    //java sdk version
-    private String userAgent = "v2.1.2";
+    private String userAgent = "finalCode spider";
 
     private HttpClient httpClient;
     private HttpParams params;
