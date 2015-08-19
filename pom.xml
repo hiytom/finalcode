@@ -52,8 +52,14 @@
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpasyncclient</artifactId>
-            <version>4.1</version>
+            <artifactId>httpclient</artifactId>
+            <version>4.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
