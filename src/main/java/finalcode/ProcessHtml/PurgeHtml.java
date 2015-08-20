@@ -18,9 +18,9 @@ import java.util.List;
 public class PurgeHtml {
     private static final Logger logger = LoggerFactory.getLogger(PurgeHtml.class);
 
-    public static void parse(String html) {
+    public static List<String> parse(String html) {
+        List<String> urlTemp = Lists.newArrayList();
         try {
-            List<String> urlTemp = Lists.newArrayList();
             Document doc = Jsoup.parse(html);
             Elements links = doc.select("a[href]");
             Elements imports = doc.select("link[href]");
@@ -40,11 +40,10 @@ public class PurgeHtml {
                     urlTemp.add(linkTemp);
                 }
             }
-
-            ConcurrentData.URL.addAll(urlTemp);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return urlTemp;
     }
 
 }

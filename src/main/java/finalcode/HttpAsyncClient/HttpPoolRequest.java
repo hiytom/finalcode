@@ -1,9 +1,13 @@
 package finalcode.HttpAsyncClient;
 
+import finalcode.App;
 import finalcode.OperateData.ConcurrentData;
+import finalcode.ProcessHtml.PurgeHtml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -12,45 +16,47 @@ import java.util.concurrent.*;
 public final class HttpPoolRequest {
     private static final Logger logger = LoggerFactory.getLogger(HttpPoolRequest.class);
 
-    private final static int CORE_POOL_SIZE = 1;
-    private final static int MAX_POOL_SIZE = 2;
-    private final static int KEEP_ALIVE_TIME = 30;
-    private final static int WORK_QUEUE_SIZE = 15;
+    private final static int URL_SCH_POOL_SIZE = 1;
+    private final static int URL_SCH_INIT_TIME = 2;
+    private final static int URL_SCH_WRITE_WAIT = 1;
 
-    private final static int SCH_POOL_SIZE = 1;
-    private final static int SCH_INIT_TIME = 60;
-    private final static int SCH_WRITE_WAIT = 120;
+    private final static int HTML_SCH_POOL_SIZE = 1;
+    private final static int HTML_SCH_INIT_TIME = 2;
+    private final static int HTML_SCH_WRITE_WAIT = 1;
 
     private static HttpPoolRequest httpPoolRequest;
-    private final ScheduledExecutorService scheduledExecutorService;
-    private final ThreadPoolExecutor threadPool;
+    private final ScheduledExecutorService urlScheduledExecutorService;
+    private final ScheduledExecutorService htmlScheduledExecutorService;
 
     private HttpPoolRequest() {
-        scheduledExecutorService = Executors.newScheduledThreadPool(SCH_POOL_SIZE);
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
+
+        urlScheduledExecutorService = Executors.newScheduledThreadPool(URL_SCH_POOL_SIZE);
+        urlScheduledExecutorService.scheduleAtFixedRate(() -> {
             if (!ConcurrentData.URL.isEmpty()) {
-                sendHttp();
+                try {
+                    String html = HttpClientManager.doGet(ConcurrentData.URL.poll(), "UTF-8", false);
+                    ConcurrentData.HTML.offer(html);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        }, SCH_INIT_TIME, SCH_WRITE_WAIT, TimeUnit.SECONDS);
+        }, URL_SCH_INIT_TIME, URL_SCH_WRITE_WAIT, TimeUnit.SECONDS);
 
-        threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME,
-                TimeUnit.SECONDS, new ArrayBlockingQueue<>(WORK_QUEUE_SIZE), (Runnable r, ThreadPoolExecutor executor) -> {
-            logger.debug("The send http threadPool is pull !");
-        });
 
+        htmlScheduledExecutorService = Executors.newScheduledThreadPool(HTML_SCH_POOL_SIZE);
+        htmlScheduledExecutorService.scheduleAtFixedRate(() -> {
+            if (!ConcurrentData.HTML.isEmpty()) {
+               List<String> urlList = PurgeHtml.parse(ConcurrentData.HTML.peek());
+               ConcurrentData.URL.addAll(urlList);
+            }
+        }, HTML_SCH_INIT_TIME, HTML_SCH_WRITE_WAIT, TimeUnit.SECONDS);
 
     }
-
-    private String sendHttp() {
-        String html = null;
-        return html;
-    }
-
 
     public void shutdown() {
         logger.info("HttpRequest threadPool shutdown begin...");
-        scheduledExecutorService.shutdown();
-        threadPool.shutdown();
+        urlScheduledExecutorService.shutdown();
+        htmlScheduledExecutorService.shutdown();
         logger.info("HttpRequest threadPool shutdown OK !");
     }
 
