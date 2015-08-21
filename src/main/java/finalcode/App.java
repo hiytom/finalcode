@@ -20,8 +20,8 @@ public class App {
         String basePath = App.class.getResource("/").getPath();
         PropertyConfigurator.configure(basePath + "log4j.properties");
 
-        baseUrl = "http://www.klook.com";
-        ConcurrentData.URL.offer(basePath);
+        baseUrl = "http://www.klook.com/";
+        ConcurrentData.URL.offer(baseUrl);
     }
 
     public static void main(String[] args) {

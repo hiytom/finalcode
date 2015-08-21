@@ -36,8 +36,7 @@ import java.util.concurrent.TimeUnit;
  * Created by peng_chao on 15-8-18.
  */
 public class HttpClientFactory {
-    private static final Logger LOG = LoggerFactory
-            .getLogger(HttpClientFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpClientFactory.class);
 
     private static final int INIT_DELAY = 5 * 1000;
     private static final int CHECK_INTERVAL = 5 * 60 * 1000;
@@ -73,20 +72,15 @@ public class HttpClientFactory {
         }
 
         SchemeRegistry schemeRegistry = new SchemeRegistry();
-        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory
-                .getSocketFactory()));
-        schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory
-                .getSocketFactory()));
+        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+        schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory()));
 
         connectionManager = new PoolingClientConnectionManager(schemeRegistry);
         connectionManager.setMaxTotal(lastConnections);
         connectionManager.setDefaultMaxPerRoute(lastConnections);
 
-        scheduledExeService = Executors.newScheduledThreadPool(1,
-                new DaemonThreadFactory("Http-client-ConenctionPool-Monitor"));
-        scheduledExeService.scheduleAtFixedRate(new IdleConnectionMonitor(connectionManager),
-                INIT_DELAY, CHECK_INTERVAL,
-                TimeUnit.MILLISECONDS);
+        scheduledExeService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory("Http-client-ConenctionPool-Monitor"));
+        scheduledExeService.scheduleAtFixedRate(new IdleConnectionMonitor(connectionManager), INIT_DELAY, CHECK_INTERVAL, TimeUnit.MILLISECONDS);
 
         this.httpClient = new DefaultHttpClient(connectionManager);
 

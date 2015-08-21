@@ -1,7 +1,9 @@
 package finalcode.OperateData;
 
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -11,5 +13,6 @@ public class ConcurrentData {
     public final static Queue<String> HTML = new LinkedBlockingQueue<>();
     //public final static Queue<Option> DATA = new LinkedBlockingQueue<>();
     public final static Queue<String> URL = new ConcurrentLinkedQueue<>();
+    public final static Set<String> repeat = new ConcurrentSkipListSet<>();
 
 }
