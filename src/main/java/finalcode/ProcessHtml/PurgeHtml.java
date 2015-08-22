@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by peng_chao_b on 15/8/14.
@@ -45,9 +46,10 @@ public final class PurgeHtml {
 
     private static void isHandleUrl(String urlTemp, List<String> urlList) {
         if (StringUtils.isNotEmpty(urlTemp) && !App.baseUrl.equals(urlTemp)
-                && urlTemp.startsWith(App.baseUrl) && ConcurrentData.repeat.add(urlTemp)) {
+                && urlTemp.startsWith(App.baseUrl) && (urlTemp.contains("/activity/")
+                || urlTemp.contains("/city/") && urlTemp.contains("/theme/"))
+                && ConcurrentData.repeat.add(urlTemp)) {
             urlList.add(urlTemp);
         }
     }
-
 }
