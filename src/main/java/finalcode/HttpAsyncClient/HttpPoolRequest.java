@@ -1,7 +1,7 @@
-package finalcode.HttpAsyncClient;
+package finalcode.httpAsyncClient;
 
-import finalcode.OperateData.ConcurrentData;
-import finalcode.ProcessHtml.PurgeHtml;
+import finalcode.operateData.ConcurrentData;
+import finalcode.processHtml.PurgeHtml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +22,8 @@ public final class HttpPoolRequest {
     private final static int HTML_SCH_INIT_TIME = 1;
     private final static int HTML_SCH_WRITE_WAIT = 1;
 
-    private final static int CORE_POOL_SIZE = 1;
-    private final static int MAXIMUM_POOL_SIZE = 500;
+    private final static int CORE_POOL_SIZE = 0;
+    private final static int MAXIMUM_POOL_SIZE = 16;
     private final static int KEEP_ALIVE_TIME = 30;
 
     private static HttpPoolRequest httpPoolRequest;
@@ -39,7 +39,7 @@ public final class HttpPoolRequest {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             Object temp = ConcurrentData.URL;
             Object temp2 = ConcurrentData.HTML;
-            Object temp3 = ConcurrentData.repeat;
+            Object temp3 = ConcurrentData.REPEAT;
             if (!ConcurrentData.URL.isEmpty()) {
                 String handleURL = ConcurrentData.URL.poll();
                 executorService.execute(() -> {
@@ -51,7 +51,7 @@ public final class HttpPoolRequest {
                         logger.info(Thread.currentThread().getName() + " - URL time : " + (time2 - time1));
                         ConcurrentData.HTML.offer(html);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        logger.info(e.getMessage());
                     }
                 });
             }

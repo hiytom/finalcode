@@ -82,6 +82,11 @@
             <version>18.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-async</artifactId>
+            <version>3.0.2</version>
+        </dependency>
     </dependencies>
 
 </project>

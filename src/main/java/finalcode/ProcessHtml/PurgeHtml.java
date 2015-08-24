@@ -1,18 +1,16 @@
-package finalcode.ProcessHtml;
+package finalcode.processHtml;
 
 import com.google.common.collect.Lists;
 import finalcode.App;
-import finalcode.OperateData.ConcurrentData;
+import finalcode.operateData.ConcurrentData;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by peng_chao_b on 15/8/14.
@@ -25,19 +23,13 @@ public final class PurgeHtml {
         try {
             Document doc = Jsoup.parse(html);
             Elements links = doc.select("a[href]");
-            Elements imports = doc.select("link[href]");
 
-            for (Element link : imports) {
-                String linkTemp = link.attr("abs:href");
+            links.forEach((link) -> {
+                String linkTemp = link.absUrl("href");
                 String urlTemp = StringUtils.deleteWhitespace(linkTemp);
                 isHandleUrl(urlTemp, urlList);
-            }
+            });
 
-            for (Element link : links) {
-                String linkTemp = link.attr("abs:href");
-                String urlTemp = StringUtils.deleteWhitespace(linkTemp);
-                isHandleUrl(urlTemp, urlList);
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -45,10 +37,7 @@ public final class PurgeHtml {
     }
 
     private static void isHandleUrl(String urlTemp, List<String> urlList) {
-        if (StringUtils.isNotEmpty(urlTemp) && !App.baseUrl.equals(urlTemp)
-                && urlTemp.startsWith(App.baseUrl) && (urlTemp.contains("/activity/")
-                || urlTemp.contains("/city/") && urlTemp.contains("/theme/"))
-                && ConcurrentData.repeat.add(urlTemp)) {
+        if (StringUtils.isNotEmpty(urlTemp) && urlTemp.startsWith(App.baseUrl) && ConcurrentData.REPEAT.add(urlTemp)) {
             urlList.add(urlTemp);
         }
     }

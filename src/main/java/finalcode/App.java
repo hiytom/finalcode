@@ -1,8 +1,8 @@
 package finalcode;
 
 
-import finalcode.HttpAsyncClient.HttpPoolRequest;
-import finalcode.OperateData.ConcurrentData;
+import finalcode.httpAsyncClient.HttpPoolRequest;
+import finalcode.operateData.ConcurrentData;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +14,7 @@ public class App {
 
     private static final Logger logger = LoggerFactory.getLogger(App.class);
     public static final String baseUrl;
+    public static final String regex;
 
     static {
         // 加载 log 配置文件
@@ -22,6 +23,8 @@ public class App {
 
         baseUrl = "http://www.klook.com/";
         ConcurrentData.URL.offer(baseUrl);
+
+        regex = "";
     }
 
     public static void main(String[] args) {
