@@ -1,10 +1,5 @@
-package finalcode.operateData;
+package finalcode.operatedata;
 
-import com.google.common.base.Charsets;
-import com.google.common.hash.Funnels;
-
-import java.util.Queue;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -12,8 +7,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by peng_chao_b on 15/8/12.
  */
 public class ConcurrentData {
-    public final static Queue<String> HTML;
-    public final static Queue<String> URL;
+    public final static LinkedBlockingQueue<String> HTML;
+    public final static ConcurrentLinkedQueue<String> URL;
     public final static BloomFilter<String> REPEAT;
 
     static {

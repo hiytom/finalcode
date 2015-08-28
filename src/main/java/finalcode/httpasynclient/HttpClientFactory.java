@@ -1,4 +1,4 @@
-package finalcode.httpAsyncClient;
+package finalcode.httpasynclient;
 
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;

@@ -1,6 +1,6 @@
-package finalcode.httpAsyncClient;
+package finalcode.httpasynclient;
 
-import finalcode.operateData.ConcurrentData;
+import finalcode.operatedata.ConcurrentData;
 import finalcode.processHtml.PurgeHtml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ public final class HttpPoolRequest {
     private final static int HTML_SCH_WRITE_WAIT = 1;
 
     private final static int CORE_POOL_SIZE = 0;
-    private final static int MAXIMUM_POOL_SIZE = 16;
+    private final static int MAXIMUM_POOL_SIZE = 4;
     private final static int KEEP_ALIVE_TIME = 30;
 
     private static HttpPoolRequest httpPoolRequest;
@@ -37,35 +37,29 @@ public final class HttpPoolRequest {
         scheduledExecutorService = Executors.newScheduledThreadPool(SCH_POOL_SIZE);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
-            Object temp = ConcurrentData.URL;
-            Object temp2 = ConcurrentData.HTML;
-            Object temp3 = ConcurrentData.REPEAT;
+
             if (!ConcurrentData.URL.isEmpty()) {
                 String handleURL = ConcurrentData.URL.poll();
                 executorService.execute(() -> {
                     try {
-                        logger.info(handleURL);
-                        long time1 = System.currentTimeMillis();
                         String html = HttpClientManager.doGet(handleURL, "UTF-8", false);
-                        long time2 = System.currentTimeMillis();
-                        logger.info(Thread.currentThread().getName() + " - URL time : " + (time2 - time1));
                         ConcurrentData.HTML.offer(html);
                     } catch (IOException e) {
                         logger.info(e.getMessage());
                     }
                 });
             }
+
         }, URL_SCH_INIT_TIME, URL_SCH_WRITE_WAIT, TimeUnit.NANOSECONDS);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
+
             if (!ConcurrentData.HTML.isEmpty()) {
-                long time1 = System.currentTimeMillis();
                 String html = ConcurrentData.HTML.poll();
                 List<String> urlList = PurgeHtml.parse(html);
-                long time2 = System.currentTimeMillis();
-                logger.info(Thread.currentThread().getName() + " - Html time : " + (time2 - time1));
                 ConcurrentData.URL.addAll(urlList);
             }
+
         }, HTML_SCH_INIT_TIME, HTML_SCH_WRITE_WAIT, TimeUnit.MILLISECONDS);
 
     }
@@ -73,6 +67,7 @@ public final class HttpPoolRequest {
     public void shutdown() {
         logger.info("HttpRequest threadPool shutdown begin...");
         scheduledExecutorService.shutdown();
+        executorService.shutdown();
         logger.info("HttpRequest threadPool shutdown OK !");
     }
 

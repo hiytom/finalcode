@@ -1,4 +1,4 @@
-package finalcode.httpAsyncClient;
+package finalcode.httpasynclient;
 
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 

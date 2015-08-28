@@ -1,4 +1,4 @@
-package finalcode.httpAsyncClient;
+package finalcode.httpasynclient;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.slf4j.Logger;

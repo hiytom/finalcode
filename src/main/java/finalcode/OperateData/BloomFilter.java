@@ -1,4 +1,4 @@
-package finalcode.operateData;
+package finalcode.operatedata;
 
 import java.util.AbstractSet;
 import java.util.Arrays;
