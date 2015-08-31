@@ -1,5 +1,6 @@
 package finalcode.httpasynclient;
 
+import finalcode.App;
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -7,13 +8,16 @@ import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.params.ClientPNames;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
@@ -24,10 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +48,10 @@ public class HttpClientFactory {
     private int connectTimeout = (5 * 1000);
     private boolean gzip = false;
 
-    private String userAgent = "finalCode spider";
+    private static String userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36";
+    private static String Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
+    private static String Language = "en,en-US;q=0.8,zh-CN;q=0.6,zh;q=0.4,zh-TW;q=0.2";
+    private static String Encoding = "gzip, deflate, sdch";
 
     private HttpClient httpClient;
     private HttpParams params;
@@ -82,14 +86,24 @@ public class HttpClientFactory {
         scheduledExeService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory("Http-client-ConenctionPool-Monitor"));
         scheduledExeService.scheduleAtFixedRate(new IdleConnectionMonitor(connectionManager), INIT_DELAY, CHECK_INTERVAL, TimeUnit.MILLISECONDS);
 
-        this.httpClient = new DefaultHttpClient(connectionManager);
-
         this.params = httpClient.getParams();
+
+        Collection<BasicHeader> collection = new ArrayList<>();
+        collection.add(new BasicHeader("Accept", Accept));
+        collection.add(new BasicHeader("Referer", App.baseUrl));
+        collection.add(new BasicHeader("Accept-Language", Language));
+        collection.add(new BasicHeader("User-Agent", userAgent));
+        collection.add(new BasicHeader("Accept-Encoding", Encoding));
+        params.setParameter(ClientPNames.DEFAULT_HEADERS, collection);
+
+        this.httpClient = new DefaultHttpClient(connectionManager, params);
 
         HttpConnectionParams.setSoTimeout(params, timeout);
         HttpConnectionParams.setConnectionTimeout(params, connectTimeout);
         HttpConnectionParams.setTcpNoDelay(params, Boolean.TRUE);
         HttpConnectionParams.setStaleCheckingEnabled(params, Boolean.FALSE);
+
+
     }
 
     public int getMaxConnections() {
@@ -179,7 +193,10 @@ public class HttpClientFactory {
     public String doGet(String url, String encoding, boolean isPB) throws IOException {
         String result = "";
         HttpGet httpget = new HttpGet(url);
-        httpget.setHeader("User-Agent", userAgent);
+
+        HttpParams params = new BasicHttpParams();
+
+        //httpget.setHeader("", );
         if (this.gzip == true) {
             httpget.setHeader("Accept-Encoding", "gzip");
         }

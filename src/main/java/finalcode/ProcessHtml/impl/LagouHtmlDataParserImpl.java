@@ -1,14 +1,14 @@
-package finalcode.processHtml.impl;
+package finalcode.processhtml.impl;
 
-import finalcode.processHtml.HtmlDataParser;
-import finalcode.processHtml.bean.DataTable;
+import finalcode.App;
+import finalcode.processhtml.HtmlDataParser;
+import finalcode.processhtml.bean.DataTable;
 import finalcode.utils.FinalCodeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,17 +21,12 @@ public class LagouHtmlDataParserImpl implements HtmlDataParser {
 
     @Override
     public DataTable getData(String html) {
-        //Document doc = Jsoup.parse(html);
-        Document doc = null;
-        try {
-            doc = Jsoup.connect("http://www.lagou.com/jobs/876534.html").get();
-        } catch (IOException e) {
-            e.printStackTrace();
+        Document doc = Jsoup.parse(html);
+        if (StringUtils.isEmpty(doc.baseUri())) {
+            doc.setBaseUri(App.baseUrl);
         }
 
         DataTable dataTable = new DataTable();
-
-        dataTable.language = doc.select(".join_tc_icon").select("h1").attr("title");
 
         Elements basic = doc.select(".job_request");
         List<String> list = basic.select("span").stream().map((element) ->
@@ -50,44 +45,43 @@ public class LagouHtmlDataParserImpl implements HtmlDataParser {
         }
 
         dataTable.welfare = basic.first().childNode(11).outerHtml().split(":")[1];
-        dataTable.releaseDate = basic.select("div").text();
+        dataTable.releaseDate = getLagouReleaseDate(basic.select("div").text());
 
         Elements companyInfo = doc.select(".job_company");
         dataTable.companyName = companyInfo.select(".b2").attr("alt");
         dataTable.profession = companyInfo.select("li:contains(领域)").first().childNode(1).outerHtml();
-        dataTable.size = companyInfo.select("li:contains(规模)").first().childNode(1).outerHtml();
         dataTable.financing = companyInfo.select("li:contains(目前阶段)").first().childNode(1).outerHtml();
-
+        dataTable.language = doc.select(".join_tc_icon").select("h1").attr("title");
         dataTable.skill = doc.select(".job_bt").text();
         dataTable.html = html;
-        //dataTable.link = doc.select(".finalcodelocation").text();
-
+        dataTable.link = doc.select(".finalcodelocation").text();
 
         return dataTable;
     }
 
-    private static HashMap dayChinese = new HashMap<>();
+    private static HashMap<String, Integer> dayChinese = new HashMap<>();
 
     static {
-        dayChinese.put("一天", "");
-        dayChinese.put("两天", "");
-        dayChinese.put("三天", "");
-        dayChinese.put("四天", "");
+        dayChinese.put("一天", -1);
+        dayChinese.put("两天", -2);
+        dayChinese.put("三天", -3);
+        dayChinese.put("四天", -4);
+        dayChinese.put("五天", -5);
+        dayChinese.put("六天", -6);
+        dayChinese.put("七天", -7);
     }
 
-    private Date getLagouReleaseDate(String str) {
+    private static Date getLagouReleaseDate(String str) {
         String tempDate = StringUtils.deleteWhitespace(str).split(":")[1];
-        Date date = FinalCodeUtil.isFormatDate(tempDate, "yyyy-MM-dd");
-        if (date != null) {
-            return date;
-        } else {
-
+        final Date[] date = {FinalCodeUtil.isFormatDate(tempDate, "yyyy-MM-dd")};
+        if (date[0] == null) {
+            dayChinese.forEach((k, v) -> {
+                if (tempDate.contains(k)) {
+                    date[0] = FinalCodeUtil.getDataBefore(v);
+                    return;
+                }
+            });
         }
-        return null;
-    }
-
-    public static void main(String args[]) {
-        LagouHtmlDataParserImpl lagouHtmlDataParser = new LagouHtmlDataParserImpl();
-        System.out.println(lagouHtmlDataParser.getData(""));
+        return date[0];
     }
 }

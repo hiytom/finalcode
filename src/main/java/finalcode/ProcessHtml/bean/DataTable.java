@@ -1,4 +1,4 @@
-package finalcode.processHtml.bean;
+package finalcode.processhtml.bean;
 
 import java.util.Date;
 
@@ -15,7 +15,7 @@ public class DataTable {
     public String educational; // 教育程度
     public String wayOfWork; // 工作方式
     public String profession; // 行业
-    public String releaseDate; // 发布时间
+    public Date releaseDate; // 发布时间
     public String financing; // 融资
     public int lowestWage; // 最低薪资
     public int tiptopWage; // 最高薪资
@@ -23,7 +23,6 @@ public class DataTable {
     public String language; // 语言
     public String skill; // 技能
     public String html; // 页面源码
-    public String size; // 规模
 
     @Override
     public String toString() {
@@ -45,7 +44,6 @@ public class DataTable {
                 ", language='" + language + '\'' +
                 ", skill='" + skill + '\'' +
                 ", html='" + html + '\'' +
-                ", size='" + size + '\'' +
                 '}';
     }
 }

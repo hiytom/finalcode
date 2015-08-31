@@ -2,8 +2,8 @@ package finalcode;
 
 import finalcode.httpasynclient.HttpClientManager;
 import finalcode.operatedata.ConcurrentData;
-import finalcode.processHtml.HtmlDataParser;
-import finalcode.processHtml.HtmlDataParserProxy;
+import finalcode.processhtml.HtmlDataParser;
+import finalcode.processhtml.HtmlDataParserProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +26,7 @@ public final class FinalCodeFactory {
     private final static int CORE_POOL_SIZE = 0;
     private final static int MAXIMUM_POOL_SIZE = 2;
     private final static int KEEP_ALIVE_TIME = 20;
+    private final static String locationDiv = "<div class=\"finalcodelocation\">{url}</div>";
 
     private static FinalCodeFactory finalCodeFactory;
     private final ExecutorService executorService;
@@ -48,8 +49,9 @@ public final class FinalCodeFactory {
                 String handleURL = ConcurrentData.URL.poll();
                 executorService.execute(() -> {
                     try {
+                        logger.info(handleURL);
                         String html = HttpClientManager.doGet(handleURL, "UTF-8", false);
-                        String location = "<div class=\"finalcodelocation\">" + handleURL + "</div>";
+                        String location = locationDiv.replace("{url}", handleURL);
                         ConcurrentData.HTML.offer(html + location);
                     } catch (IOException e) {
                         logger.info(e.getMessage());

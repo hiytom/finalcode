@@ -2,7 +2,7 @@ package finalcode.db;
 
 import finalcode.App;
 import finalcode.operatedata.ConcurrentData;
-import finalcode.processHtml.bean.DataTable;
+import finalcode.processhtml.bean.DataTable;
 import finalcode.utils.FinalCodeUtil;
 
 import java.lang.reflect.Field;

@@ -14,7 +14,6 @@ import java.util.Properties;
  * Main App
  */
 public class App {
-
     private static final Logger logger = LoggerFactory.getLogger(App.class);
     public static String baseUrl;
     public static String regex;
@@ -25,7 +24,6 @@ public class App {
     }
 
     private void init() {
-
         // 加载 log 配置文件
         String basePath = App.class.getResource("/").getPath();
         PropertyConfigurator.configure(basePath + "log4j.properties");
@@ -35,13 +33,14 @@ public class App {
 
         try {
             prop.load(ins);
-            regex = prop.getProperty("regex");
-            baseUrl = prop.getProperty("baseUrl");
-            achieve = prop.getProperty("achieve");
-            table = prop.getProperty("table");
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        regex = prop.getProperty("regex", null);
+        baseUrl = prop.getProperty("baseUrl");
+        achieve = prop.getProperty("achieve");
+        table = prop.getProperty("table");
 
         ConcurrentData.URL.offer(baseUrl);
         ConcurrentData.REPEAT.add(baseUrl);

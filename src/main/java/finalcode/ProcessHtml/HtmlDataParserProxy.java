@@ -1,8 +1,8 @@
-package finalcode.processHtml;
+package finalcode.processhtml;
 
 import finalcode.App;
 import finalcode.operatedata.ConcurrentData;
-import finalcode.processHtml.bean.DataTable;
+import finalcode.processhtml.bean.DataTable;
 import finalcode.utils.FinalCodeUtil;
 
 import java.lang.reflect.InvocationHandler;
@@ -14,17 +14,17 @@ import java.lang.reflect.Proxy;
  */
 public class HtmlDataParserProxy implements InvocationHandler {
     private Object target;
+    private static boolean URLFilter = App.regex == null;
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String html = (String) args[0];
         Object result = null;
         String location = HtmlDataParser.parse(html);
-        System.out.println(location);
-        boolean temp = FinalCodeUtil.recognize(App.regex, location);
-        if (temp) {
+
+        if (recognize(location)) {
             result = method.invoke(target, args);
-            ConcurrentData.DATA.offer((DataTable)result);
+            ConcurrentData.DATA.offer((DataTable) result);
         }
         return result;
     }
@@ -33,6 +33,12 @@ public class HtmlDataParserProxy implements InvocationHandler {
         this.target = target;
         return Proxy.newProxyInstance(target.getClass().getClassLoader(),
                 target.getClass().getInterfaces(), this);
+    }
+
+    public boolean recognize(String location) {
+        boolean temp = true;
+        if (!URLFilter && !FinalCodeUtil.recognize(App.regex, location)) temp = false;
+        return temp;
     }
 
 

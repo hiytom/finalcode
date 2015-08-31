@@ -1,8 +1,8 @@
 package finalcode.utils;
 
-import com.google.common.base.Strings;
-import finalcode.App;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
  * Created by peng_chao on 15-8-28.
  */
 public final class FinalCodeUtil {
+    private static final Logger logger = LoggerFactory.getLogger(FinalCodeUtil.class);
 
     public static int getProcessors() {
         int a;
@@ -45,28 +47,34 @@ public final class FinalCodeUtil {
     }
 
     public static boolean recognize(String regEx, String url) {
-        Pattern p = Pattern.compile(regEx);
-        Matcher m = p.matcher(url);
-        if (m.find()) {
-            return Boolean.TRUE;
+        if (StringUtils.isNotEmpty(regEx)) {
+            Pattern p = Pattern.compile(regEx);
+            Matcher m = p.matcher(url);
+            if (m.find()) {
+                return Boolean.TRUE;
+            }
         }
         return Boolean.FALSE;
     }
 
     public static Date isFormatDate(String dataStr, String formatStr) {
         dataStr = StringUtils.deleteWhitespace(dataStr);
-        if (StringUtils.isEmpty(dataStr)) {
-            return null;
-        } else {
+        if (!StringUtils.isEmpty(dataStr)) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(formatStr);
             try {
-               return dateFormat.parse(dataStr);
+                return dateFormat.parse(dataStr);
             } catch (ParseException e) {
-                e.printStackTrace();
             }
         }
         return null;
     }
+
+    public static Date getDataBefore(int a) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, a);
+        return calendar.getTime();
+    }
+
 
     public static String getTableFiledType(Field field) {
         Type type = field.getType();
@@ -87,25 +95,12 @@ public final class FinalCodeUtil {
         return tableFiledType;
     }
 
-    public boolean regexTarget(String url) {
-        String regex = App.regex;
-        if (StringUtils.isNotEmpty(regex)) {
-            Pattern pattern = Pattern.compile(regex);
-            Matcher m = pattern.matcher(url);
-            if (m.find()) {
-                return Boolean.TRUE;
-            }
-        }
-        return Boolean.FALSE;
-    }
-
-
     public static String encode(String url, String unicode) {
-        if (Strings.isNullOrEmpty(url)) {
+        if (StringUtils.isEmpty(url)) {
             return "";
         }
 
-        if (Strings.isNullOrEmpty(unicode)) {
+        if (StringUtils.isEmpty(unicode)) {
             unicode = "UTF-8";
         }
         try {
@@ -122,4 +117,5 @@ public final class FinalCodeUtil {
     public static String encode(String url) {
         return encode(url, null);
     }
+
 }
