@@ -1,5 +1,7 @@
 package finalcode.operatedata;
 
+import finalcode.processHtml.bean.DataTable;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -8,6 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class ConcurrentData {
     public final static LinkedBlockingQueue<String> HTML;
+    public final static LinkedBlockingQueue<DataTable> DATA;
     public final static ConcurrentLinkedQueue<String> URL;
     public final static BloomFilter<String> REPEAT;
 
@@ -15,6 +18,9 @@ public class ConcurrentData {
         HTML = new LinkedBlockingQueue<>();
         URL = new ConcurrentLinkedQueue<>();
         REPEAT = new BloomFilter<>(10000000, 0.03f);
+        DATA = new LinkedBlockingQueue<>();
     }
+
+
 
 }
