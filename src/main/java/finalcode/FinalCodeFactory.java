@@ -5,6 +5,7 @@ import finalcode.httpasynclient.HttpClientManager;
 import finalcode.operatedata.ConcurrentData;
 import finalcode.processhtml.HtmlDataParser;
 import finalcode.processhtml.HtmlDataParserProxy;
+import finalcode.utils.FinalCodeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public final class FinalCodeFactory {
                 executorService.execute(() -> {
                     try {
                         logger.info(handleURL);
-                        String html = HttpClientManager.doGet(handleURL, "UTF-8", false);
+                        String html = HttpClientManager.doGet(FinalCodeUtil.encode(handleURL), "UTF-8", false);
                         String location = locationDiv.replace("{url}", handleURL);
                         ConcurrentData.HTML.offer(html + location);
                     } catch (IOException e) {

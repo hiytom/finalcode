@@ -12,6 +12,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +22,18 @@ import java.util.regex.Pattern;
  */
 public final class FinalCodeUtil {
     private static final Logger logger = LoggerFactory.getLogger(FinalCodeUtil.class);
+    private static final String[] str = {":", "/", "?", "#", "&", "+", "_", " ", "=", "-"};
+    private static final Map<String, String> map = new HashMap<>();
+
+    static {
+        for (String s : str) {
+            try {
+                map.put(URLEncoder.encode(s, "UTF-8"), s);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public static int getProcessors() {
         int a;
@@ -96,6 +110,7 @@ public final class FinalCodeUtil {
     }
 
     public static String encode(String url, String unicode) {
+        Map<String, String> temp = new HashMap<>();
         if (StringUtils.isEmpty(url)) {
             return "";
         }
@@ -106,11 +121,19 @@ public final class FinalCodeUtil {
         try {
             if (url.length() != url.getBytes().length) {
                 url = URLEncoder.encode(url, unicode);
+                temp.put("url", url);
+                final String finalUrl = url;
+                map.forEach((k, v) -> {
+                    if (finalUrl.contains(k)) {
+                        temp.put("url", temp.get("url").replaceAll(k, v));
+                    }
+                });
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        return url;
+
+        return temp.get("url");
 
     }
 

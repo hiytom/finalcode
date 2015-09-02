@@ -86,6 +86,7 @@ public class HttpClientFactory {
         scheduledExeService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory("Http-client-ConenctionPool-Monitor"));
         scheduledExeService.scheduleAtFixedRate(new IdleConnectionMonitor(connectionManager), INIT_DELAY, CHECK_INTERVAL, TimeUnit.MILLISECONDS);
 
+        this.httpClient = new DefaultHttpClient(connectionManager);
         this.params = httpClient.getParams();
 
         Collection<BasicHeader> collection = new ArrayList<>();
@@ -96,7 +97,6 @@ public class HttpClientFactory {
         collection.add(new BasicHeader("Accept-Encoding", Encoding));
         params.setParameter(ClientPNames.DEFAULT_HEADERS, collection);
 
-        this.httpClient = new DefaultHttpClient(connectionManager, params);
 
         HttpConnectionParams.setSoTimeout(params, timeout);
         HttpConnectionParams.setConnectionTimeout(params, connectTimeout);
