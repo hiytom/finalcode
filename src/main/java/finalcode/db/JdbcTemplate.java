@@ -1,12 +1,9 @@
 package finalcode.db;
 
-import finalcode.App;
-import finalcode.operatedata.ConcurrentData;
 import finalcode.processhtml.bean.DataTable;
-import finalcode.utils.FinalCodeUtil;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
-import java.lang.reflect.Field;
-import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -16,58 +13,53 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public final class JdbcTemplate {
 
-    public static void initDataBases() {
+    private static final int BATCH_SIZE = 2000;
+
+    public static void insertBatch(LinkedBlockingQueue<DataTable> dataTables) {
+
+        if (dataTables.size() < BATCH_SIZE) {
+            return;
+        }
+
+        org.springframework.jdbc.core.JdbcTemplate jdbcTemplate =
+                new org.springframework.jdbc.core.JdbcTemplate(DBManager.getDatasource());
+
         StringBuilder sb = new StringBuilder();
+        sb.append("insert into metadata (")
+                .append("link,companyName,workPlace,lowestExperience,tiptopExperience,educational,")
+                .append("wayOfWork,profession,releaseDate,financing,lowestWage,tiptopWage,welfare,language,skill,html")
+                .append(")values(")
+                .append("?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?")
+                .append(")");
 
-        sb.append("drop database if exists finalcode;");
-        sb.append("create database finalcode;");
-        sb.append("use finalcode;");
+        jdbcTemplate.batchUpdate(sb.toString(), new BatchPreparedStatementSetter() {
 
-        String tableBeanClassPath = App.table;
-        String tableName = tableBeanClassPath.substring(tableBeanClassPath.lastIndexOf(".") + 1,
-                tableBeanClassPath.length());
-
-        sb.append("CREATE TABLE `" + tableName + "` (`id` int(11) unsigned NOT NULL AUTO_INCREMENT,");
-
-        Class<?> tables = null;
-        try {
-            tables = Class.forName(App.table);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        Field[] fields = tables.getFields();
-        for (Field field : fields) {
-            String tableFieldTypeStr =  FinalCodeUtil.getTableFiledType(field);
-            String tableFiledName = field.getName();
-            sb.append("`" + tableFiledName + "` " + tableFieldTypeStr + ",");
-        }
-
-        sb.append("PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-    }
-
-
-    public static void batchAdd() {
-        LinkedBlockingQueue<DataTable> data = ConcurrentData.DATA;
-
-        if (!data.isEmpty()) {
-            String sql = "";
-            Connection conn = null;
-            PreparedStatement pstm = null;
-            try {
-                conn = DBManager.getConnection();
-                conn.setAutoCommit(false);
-                pstm = conn.prepareStatement(sql);
-            while (data.peek() != null) {
-                data.poll();
-                //pstm = setStatement(writeLog, pstm);
-                pstm.addBatch();
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                DataTable d = dataTables.poll();
+                ps.setString(1, d.link);
+                ps.setString(2, d.companyName);
+                ps.setString(3, d.workPlace);
+                ps.setInt(4, d.lowestExperience);
+                ps.setInt(5, d.tiptopExperience);
+                ps.setString(6, d.educational);
+                ps.setString(7, d.wayOfWork);
+                ps.setString(8, d.profession);
+                ps.setDate(9, (Date) d.releaseDate);
+                ps.setString(10, d.financing);
+                ps.setInt(11, d.lowestWage);
+                ps.setInt(12, d.tiptopWage);
+                ps.setString(13, d.welfare);
+                ps.setString(14, d.language);
+                ps.setString(15, d.skill);
+                ps.setString(16, d.html);
             }
-            pstm.executeBatch();
-            conn.commit();
-            } catch (SQLException e) {
-                e.printStackTrace();
+
+            @Override
+            public int getBatchSize() {
+                return BATCH_SIZE;
             }
-        }
+        });
 
     }
 

@@ -24,5 +24,5 @@ public interface HtmlDataParser {
         return document.select(".finalcodelocation").text();
     }
 
-    public DataTable getData(String html);
+    DataTable getData(String html);
 }

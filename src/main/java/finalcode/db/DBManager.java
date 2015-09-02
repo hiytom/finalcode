@@ -18,7 +18,7 @@ public final class DBManager {
 
     static {
         PoolProperties p = new PoolProperties();
-        p.setUrl("jdbc:mysql://localhost:3306/");
+        p.setUrl("jdbc:mysql://localhost:3306/finalcode");
         p.setDriverClassName("com.mysql.jdbc.Driver");
         p.setUsername("root");
         p.setPassword("sees7&chanting");
@@ -47,6 +47,17 @@ public final class DBManager {
     }
 
     private DBManager() {
+    }
+
+    public static DataSource getDatasource() {
+        if (null == dbManager) {
+            synchronized (DBManager.class) {
+                if (null == dbManager) {
+                    dbManager = new DBManager();
+                }
+            }
+        }
+        return datasource;
     }
 
     public static Connection getConnection() {

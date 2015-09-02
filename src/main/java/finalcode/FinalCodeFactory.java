@@ -1,5 +1,6 @@
 package finalcode;
 
+import finalcode.db.JdbcTemplate;
 import finalcode.httpasynclient.HttpClientManager;
 import finalcode.operatedata.ConcurrentData;
 import finalcode.processhtml.HtmlDataParser;
@@ -22,6 +23,8 @@ public final class FinalCodeFactory {
     private final static int URL_SCH_WRITE_WAIT = 1;
     private final static int HTML_SCH_INIT_TIME = 1;
     private final static int HTML_SCH_WRITE_WAIT = 1;
+    private final static int DATA_SCH_INIT_TIME = 2;
+    private final static int DATA_SCH_WRITE_WAIT = 2;
 
     private final static int CORE_POOL_SIZE = 0;
     private final static int MAXIMUM_POOL_SIZE = 2;
@@ -31,11 +34,6 @@ public final class FinalCodeFactory {
     private static FinalCodeFactory finalCodeFactory;
     private final ExecutorService executorService;
     private final ScheduledExecutorService scheduledExecutorService;
-
-    Object a = ConcurrentData.DATA;
-    Object b = ConcurrentData.HTML;
-    Object c = ConcurrentData.REPEAT;
-    Object d = ConcurrentData.URL;
 
     private FinalCodeFactory() {
 
@@ -66,6 +64,9 @@ public final class FinalCodeFactory {
                 parseHtml(html);
             }
         }, HTML_SCH_INIT_TIME, HTML_SCH_WRITE_WAIT, TimeUnit.SECONDS);
+
+        scheduledExecutorService.scheduleAtFixedRate(() -> JdbcTemplate.insertBatch(ConcurrentData.DATA)
+                , DATA_SCH_INIT_TIME, DATA_SCH_WRITE_WAIT, TimeUnit.MINUTES);
 
     }
 

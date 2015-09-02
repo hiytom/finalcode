@@ -18,7 +18,6 @@ public class App {
     public static String baseUrl;
     public static String regex;
     public static String achieve;
-    public static String table;
 
     private App() {
     }
@@ -40,12 +39,10 @@ public class App {
         regex = prop.getProperty("regex", null);
         baseUrl = prop.getProperty("baseUrl");
         achieve = prop.getProperty("achieve");
-        table = prop.getProperty("table");
 
         ConcurrentData.URL.offer(baseUrl);
         ConcurrentData.REPEAT.add(baseUrl);
 
-        // JdbcTemplate.initDataBases();
         FinalCodeFactory.newHttpRequest();
 
     }
