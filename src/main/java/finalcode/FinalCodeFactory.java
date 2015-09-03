@@ -18,14 +18,16 @@ import java.util.concurrent.*;
 public final class FinalCodeFactory {
     private static final Logger logger = LoggerFactory.getLogger(FinalCodeFactory.class);
 
-    private final static int SCH_POOL_SIZE = 2;
-
     private final static int URL_SCH_INIT_TIME = 1;
     private final static int URL_SCH_WRITE_WAIT = 1;
+
     private final static int HTML_SCH_INIT_TIME = 1;
     private final static int HTML_SCH_WRITE_WAIT = 1;
+
     private final static int DATA_SCH_INIT_TIME = 2;
     private final static int DATA_SCH_WRITE_WAIT = 2;
+
+    private final static int SCH_POOL_SIZE = 2;
 
     private final static int CORE_POOL_SIZE = 0;
     private final static int MAXIMUM_POOL_SIZE = 2;
@@ -44,11 +46,15 @@ public final class FinalCodeFactory {
         scheduledExecutorService = Executors.newScheduledThreadPool(SCH_POOL_SIZE);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
+            Object a = ConcurrentData.DATA;
+            Object b = ConcurrentData.HTML;
+            Object c = ConcurrentData.REPEAT;
+            Object d = ConcurrentData.URL;
+
             if (!ConcurrentData.URL.isEmpty()) {
                 String handleURL = ConcurrentData.URL.poll();
                 executorService.execute(() -> {
                     try {
-                        logger.info(handleURL);
                         String html = HttpClientManager.doGet(FinalCodeUtil.encode(handleURL), "UTF-8", false);
                         String location = locationDiv.replace("{url}", handleURL);
                         ConcurrentData.HTML.offer(html + location);
@@ -57,20 +63,28 @@ public final class FinalCodeFactory {
                     }
                 });
             }
-        }, URL_SCH_INIT_TIME, URL_SCH_WRITE_WAIT, TimeUnit.NANOSECONDS);
+        }, URL_SCH_INIT_TIME, URL_SCH_WRITE_WAIT, TimeUnit.SECONDS);
 
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             if (!ConcurrentData.HTML.isEmpty()) {
-                String html = ConcurrentData.HTML.poll();
-                parseHtml(html);
+                try {
+                    String html = ConcurrentData.HTML.poll();
+                    parseHtml(html);
+                } catch (Exception e) {
+                    logger.info(e.getMessage());
+                }
             }
-        }, HTML_SCH_INIT_TIME, HTML_SCH_WRITE_WAIT, TimeUnit.SECONDS);
+        }, HTML_SCH_INIT_TIME, HTML_SCH_WRITE_WAIT, TimeUnit.NANOSECONDS);
 
-        scheduledExecutorService.scheduleAtFixedRate(() -> JdbcTemplate.insertBatch(ConcurrentData.DATA)
-                , DATA_SCH_INIT_TIME, DATA_SCH_WRITE_WAIT, TimeUnit.MINUTES);
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            try {
+                JdbcTemplate.insertBatch(ConcurrentData.DATA);
+            } catch (Exception e) {
+                logger.info(e.getMessage());
+            }
+        }, DATA_SCH_INIT_TIME, DATA_SCH_WRITE_WAIT, TimeUnit.MINUTES);
 
     }
-
 
     private void parseHtml(String html) {
         Object obj = null;

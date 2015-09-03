@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -16,6 +18,7 @@ import java.util.Properties;
 public class App {
     private static final Logger logger = LoggerFactory.getLogger(App.class);
     public static String baseUrl;
+    public static String host;
     public static String regex;
     public static String achieve;
 
@@ -39,6 +42,13 @@ public class App {
         regex = prop.getProperty("regex", null);
         baseUrl = prop.getProperty("baseUrl");
         achieve = prop.getProperty("achieve");
+
+        try {
+            URL url = new URL(baseUrl);
+            host = url.getProtocol() + "://" + url.getHost();
+        } catch (MalformedURLException e) {
+            System.exit(0);
+        }
 
         ConcurrentData.URL.offer(baseUrl);
         ConcurrentData.REPEAT.add(baseUrl);

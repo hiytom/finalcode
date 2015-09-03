@@ -111,6 +111,7 @@ public final class FinalCodeUtil {
 
     public static String encode(String url, String unicode) {
         Map<String, String> temp = new HashMap<>();
+        temp.put("url", url);
         if (StringUtils.isEmpty(url)) {
             return "";
         }
@@ -118,10 +119,10 @@ public final class FinalCodeUtil {
         if (StringUtils.isEmpty(unicode)) {
             unicode = "UTF-8";
         }
+
         try {
             if (url.length() != url.getBytes().length) {
                 url = URLEncoder.encode(url, unicode);
-                temp.put("url", url);
                 final String finalUrl = url;
                 map.forEach((k, v) -> {
                     if (finalUrl.contains(k)) {
@@ -132,9 +133,7 @@ public final class FinalCodeUtil {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
         return temp.get("url");
-
     }
 
     public static String encode(String url) {

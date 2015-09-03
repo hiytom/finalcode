@@ -21,4 +21,14 @@ public class ConcurrentData {
         DATA = new LinkedBlockingQueue<>();
     }
 
+
+    public static String string() {
+        int html = HTML.size();
+        int data = DATA.size();
+        int url = URL.size();
+        int repeat = REPEAT.size();
+        String result = "html: " + html + " data: " + data + " url: " + url + " repeat: " + repeat;
+        return result;
+    }
+
 }
